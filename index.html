@@ -678,7 +678,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
       const token = getSession();
       if (!token) return;
       try {
-        const res = await fetch("/api/status", {
+        const res = await fetch("https://testapi-production-11a6.up.railway.app/" {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: token, device: getDevice() })
