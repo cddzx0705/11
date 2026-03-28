@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0038)https://finalapphft.onrender.com/panel -->
 <html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body {transition: opacity ease-in 0.2s; } 
 body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relative; } 
 </style>
@@ -278,6 +277,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
   
 </head>
 <body>
+    
   <div class="bgAura"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
 
   <div class="loadingLayer hide" id="loadingLayer">
@@ -286,7 +286,14 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
     <div class="loadingSub">Loading secure panel...</div>
     <div class="loadingBar"><span></span></div>
   </div>
-
+<div id="loginView" style="position:fixed;inset:0;background:#0b0612;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;">
+  <div class="card" style="width:300px;text-align:center;">
+    <h2 style="margin-bottom:12px;color:#fff;">Đăng Nhập Key</h2>
+    <input id="apiKeyInput" class="input" type="text" placeholder="Nhập API Key..." style="margin-bottom:12px;">
+    <button class="btn" onclick="loginKey()">Đăng nhập</button>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+</div>
   <div class="wrap">
     <div class="card">
       <div class="top">
@@ -299,37 +306,6 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
           </div>
         </div>
       </div>
-
-      <div class="content">
-        <div id="loginView" class="loginHero">
-          <div class="loginIntro">
-            <h2 class="loginTitle">Đăng nhập Key</h2>
-            <p class="loginHint">
-              Nhập key đã được cấp để mở panel App Hỗ Trợ Kéo Tâm Trên Android Và iOS.
-            </p>
-          </div>
-          <input id="keyInput" class="input" placeholder="Nhập Key Vào Đây">
-          <button class="btn" onclick="dangNhap()">Đăng nhập</button>
-          <div class="grid2" style="margin-top:10px">
-            <a class="socialBtn" href="https://zalo.me/0396134792" target="_blank" rel="noopener noreferrer">
-  <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-    <rect x="4" y="4" width="56" height="56" rx="18" fill="#0068FF"></rect>
-    <path d="M17 22h30.5c1.7 0 2.58 2.03 1.42 3.27L28.1 46h18.4c1.9 0 2.73 2.39 1.23 3.56L46 51H17.5c-1.72 0-2.6-2.08-1.38-3.31L36.9 27H17c-1.66 0-2.5-2-1.34-3.2l.03-.03C16.05 22.3 16.5 22 17 22Z" fill="white"></path>
-  </svg> <span>Zalo</span></a>
-            <a class="socialBtn" href="https://www.facebook.com/cducdz" target="_blank" rel="noopener noreferrer">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path fill="#1877F2" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.023 4.388 11.015 10.125 11.927v-8.437H7.078v-3.49h3.047V9.41c0-3.017 1.792-4.684 4.533-4.684 1.313 0 2.686.235 2.686.235v2.963H15.83c-1.49 0-1.955.931-1.955 1.886v2.263h3.328l-.532 3.49h-2.796V24C19.612 23.088 24 18.096 24 12.073Z"></path>
-    <path fill="#fff" d="M16.671 15.563l.532-3.49h-3.328V9.81c0-.955.465-1.886 1.955-1.886h1.514V4.96s-1.373-.235-2.686-.235c-2.741 0-4.533 1.667-4.533 4.684v2.664H7.078v3.49h3.047V24h3.75v-8.437h2.796Z"></path>
-  </svg> <span>Facebook</span></a>
-          </div>
-          <div id="msg" class="msg"></div>
-        </div>
-
-        <div id="panelView" class="hidden">
-          <div class="topLine">
-            <div class="pill">✨ VIP ACTIVE</div>
-            <button class="smallBtn" onclick="dangXuat()">Thoát</button>
-          </div>
 
           <div class="noticeBox" id="keyNotice">
             Key đang hoạt động.
@@ -420,6 +396,61 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
   <div id="toast" class="toast"></div>
 
   <script>
+    const loginMsg = document.getElementById("loginMsg");
+const loginViewDiv = document.getElementById("loginView");
+const wrapDiv = document.querySelector(".wrap");
+
+// Kiểm tra nếu đã lưu key trước đó
+const savedKey = localStorage.getItem("ath_key");
+if(savedKey){
+  loginViewDiv.style.display = "none";
+  wrapDiv.style.display = "flex";
+  keyNotice.textContent = "Key đang hoạt động: " + savedKey;
+}
+
+// Login function
+async function loginKey() {
+  const key = document.getElementById("apiKeyInput").value.trim();
+  if (!key) {
+    loginMsg.textContent = "Vui lòng nhập Key!";
+    loginMsg.className = "msg err";
+    return;
+  }
+
+  loginMsg.textContent = "Đang kiểm tra Key...";
+  loginMsg.className = "msg";
+
+  try {
+    const res = await fetch("https://testapi-production-11a6.up.railway.app/", { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key })
+    });
+
+    if(!res.ok) throw new Error("Server lỗi " + res.status);
+
+    const data = await res.json();
+
+    if (data.valid) {
+      localStorage.setItem("ath_key", key);
+      loginMsg.textContent = "Đăng nhập thành công!";
+      loginMsg.className = "msg ok";
+
+      setTimeout(() => {
+        loginViewDiv.style.display = "none";
+        wrapDiv.style.display = "flex";
+        keyNotice.textContent = "Key đang hoạt động: " + key;
+      }, 800);
+    } else {
+      loginMsg.textContent = "Key không hợp lệ!";
+      loginMsg.className = "msg err";
+    }
+  } catch (err) {
+    console.error(err);
+    loginMsg.textContent = "Lỗi kết nối API! Kiểm tra server hoặc mạng.";
+    loginMsg.className = "msg err";
+  }
+}
     const msg = document.getElementById("msg");
     const loginView = document.getElementById("loginView");
     const panelView = document.getElementById("panelView");
@@ -678,7 +709,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
       const token = getSession();
       if (!token) return;
       try {
-        const res = await fetch("https://testapi-production-11a6.up.railway.app/" {
+        const res = await fetch("/api/status", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: token, device: getDevice() })
